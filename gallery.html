@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>गैलरी - श्री राम जानकी मंदिर, खेड़ी</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Vadodara:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-icon"><i class="fas fa-om"></i></div>
+            <div class="preloader-text">श्री राम जानकी मंदिर</div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+    
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-wrapper">
+                    <a href="index.html" class="logo">
+                        <div class="logo-text">
+                            <h1>श्री राम जानकी मंदिर</h1>
+                            <span class="logo-subtitle">खेड़ी, खण्डवा (म.प्र.)</span>
+                        </div>
+                    </a>
+                    <ul class="nav-menu" id="navMenu">
+                        <li class="nav-item"><a href="index.html" class="nav-link">मुख्य पृष्ठ</a></li>
+                        <li class="nav-item"><a href="pratahaarti.html" class="nav-link">प्रातः आरती</a></li>
+                        <li class="nav-item"><a href="sandhya.html" class="nav-link">संध्या आरती</a></li>
+                        <li class="nav-item"><a href="aartisangrah.html" class="nav-link">आरती संग्रह</a></li>
+                        <li class="nav-item"><a href="parv.html" class="nav-link">पर्व एवं त्योहार</a></li>
+                        <li class="nav-item"><a href="bhajan.html" class="nav-link">भजन संग्रह</a></li>
+                        <li class="nav-item"><a href="gallery.html" class="nav-link active">गैलरी</a></li>
+                        <li class="nav-item"><a href="gyaan.html" class="nav-link">धार्मिक ज्ञान</a></li>
+                    </ul>
+                    <div class="nav-actions">
+                        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                        <button class="hamburger" id="hamburger"></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="aarti-hero">
+            <div class="container">
+                <div class="aarti-hero-content" data-aos="fade-up">
+                    <div class="aarti-hero-badge">
+                        <i class="fas fa-camera"></i>
+                        <span>मनमोहक दर्शन</span>
+                    </div>
+                    <h1>गैलरी</h1>
+                    <p class="aarti-time-big">
+                        <i class="fas fa-om"></i>
+                        श्री राम जानकी मंदिर की झलकियाँ
+                    </p>
+                </div>
+            </div>
+            <div class="hero-wave">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                    <path fill="var(--bg-primary)" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,208C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
+        </section>
+        
+        <section class="gallery-content-section">
+            <div class="container">
+                
+                <!-- Main Featured Photos - 2x2 Grid -->
+                <div class="gallery-featured-grid" data-aos="fade-up">
+                    <div class="gallery-featured-card" onclick="openLightbox('gallery/ramji.jpg', '🙏 भगवान श्रीराम 🙏')">
+                        <img src="gallery/ramji.jpg" alt="भगवान श्रीराम">
+                        <div class="gallery-featured-info">
+                            <h3>🙏 भगवान श्रीराम 🙏</h3>
+                        </div>
+                    </div>
+                    <div class="gallery-featured-card" onclick="openLightbox('gallery/mahadev.jpg', '🙏 भोले बाबा / महादेव 🙏')">
+                        <img src="gallery/mahadev.jpg" alt="महादेव">
+                        <div class="gallery-featured-info">
+                            <h3>🙏 भोले बाबा 🙏</h3>
+                        </div>
+                    </div>
+                    <div class="gallery-featured-card" onclick="openLightbox('gallery/krishna.jpg', '🙏 श्री गोपाल कृष्ण भगवान 🙏')">
+                        <img src="gallery/krishna.jpg" alt="कृष्ण">
+                        <div class="gallery-featured-info">
+                            <h3>🙏 श्री गोपाल कृष्ण भगवान 🙏</h3>
+                        </div>
+                    </div>
+                    <div class="gallery-featured-card" onclick="openLightbox('gallery/gurudev.jpg', '🙏 गुरुदेव महंत श्री 108 रामदास जी महाराज 🙏')">
+                        <img src="gallery/gurudev.jpg" alt="गुरुदेव">
+                        <div class="gallery-featured-info">
+                            <h3>🙏 महंत श्री 108 रामदास जी महाराज 🙏</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- प्रमुख छवियाँ Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-star"></i>
+                        <h2>प्रमुख छवियाँ</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/pramukh-1.jpg', 'प्रमुख छवि')">
+                            <img src="gallery/pramukh-1.jpg" alt="प्रमुख छवि">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/pramukh-2.jpg', 'प्रमुख छवि')">
+                            <img src="gallery/pramukh-2.jpg" alt="प्रमुख छवि">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/pramukh-3.jpg', 'प्रमुख छवि')">
+                            <img src="gallery/pramukh-3.jpg" alt="प्रमुख छवि">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/pramukh-4.jpg', 'प्रमुख छवि')">
+                            <img src="gallery/pramukh-4.jpg" alt="प्रमुख छवि">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- मंदिर परिसर Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-place-of-worship"></i>
+                        <h2>मंदिर परिसर</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/mandir-1.jpg', 'मंदिर का मुख्य द्वार')">
+                            <img src="gallery/mandir-1.jpg" alt="मुख्य द्वार">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/mandir-2.jpg', 'मंदिर परिसर')">
+                            <img src="gallery/mandir-2.jpg" alt="परिसर">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- दीपावली Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-dharmachakra"></i>
+                        <h2>दीपावली</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/diwali-1.jpg', 'दीपावली')">
+                            <img src="gallery/diwali-1.jpg" alt="दीपावली">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/diwali-2.jpg', 'दीपावली')">
+                            <img src="gallery/diwali-2.jpg" alt="दीपावली">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/diwali-3.jpg', 'दीपावली')">
+                            <img src="gallery/diwali-3.jpg" alt="दीपावली">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/diwali-4.jpg', 'दीपावली')">
+                            <img src="gallery/diwali-4.jpg" alt="दीपावली">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- नवरात्रि Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-star-of-david"></i>
+                        <h2>नवरात्रि</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/navratri-1.jpg', 'नवरात्रि')">
+                            <img src="gallery/navratri-1.jpg" alt="नवरात्रि">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/navratri-2.jpg', 'नवरात्रि')">
+                            <img src="gallery/navratri-2.jpg" alt="नवरात्रि">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- रामनवमी Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-calendar-day"></i>
+                        <h2>रामनवमी उत्सव</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/ramnavami-1.jpg', 'रामनवमी उत्सव')">
+                            <img src="gallery/ramnavami-1.jpg" alt="रामनवमी">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/ramnavami-2.jpg', 'रामनवमी उत्सव')">
+                            <img src="gallery/ramnavami-2.jpg" alt="रामनवमी">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- अन्य त्योहार Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-images"></i>
+                        <h2>अन्य त्योहार</h2>
+                    </div>
+                    <div class="gallery-photo-grid">
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/fest-1.jpg', 'होली उत्सव')">
+                            <img src="gallery/fest-1.jpg" alt="होली">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/fest-2.jpg', 'जन्माष्टमी')">
+                            <img src="gallery/fest-2.jpg" alt="जन्माष्टमी">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/fest-3.jpg', 'महाशिवरात्रि')">
+                            <img src="gallery/fest-3.jpg" alt="महाशिवरात्रि">
+                        </div>
+                        <div class="gallery-photo-card" onclick="openLightbox('gallery/fest-4.jpg', 'अन्य उत्सव')">
+                            <img src="gallery/fest-4.jpg" alt="उत्सव">
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
+                
+                
+                
+                <!-- Wallpapers Download Section -->
+                <div class="gallery-category" data-aos="fade-up">
+                    <div class="gallery-category-header">
+                        <i class="fas fa-download"></i>
+                        <h2>वॉलपेपर डाउनलोड</h2>
+                    </div>
+                    
+                    <div class="wallpaper-grid">
+                        <div class="wallpaper-card">
+                            <img src="gallery/wallpaper-1.jpg" alt="Wallpaper" onerror="this.style.display='none'; this.parentElement.querySelector('.wallpaper-placeholder').style.display='flex'">
+                            <div class="wallpaper-placeholder"><i class="fas fa-image"></i></div>
+                            <div class="wallpaper-info">
+                                <a href="https://raw.githubusercontent.com/kuldeepyaduvanshi24/shree-ram-mandir/main/gallery/wallpaper-1.jpg" download class="download-btn">
+                                    <i class="fas fa-download"></i> डाउनलोड
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="wallpaper-card">
+                            <img src="gallery/wallpaper-2.jpg" alt="Wallpaper" onerror="this.style.display='none'; this.parentElement.querySelector('.wallpaper-placeholder').style.display='flex'">
+                            <div class="wallpaper-placeholder"><i class="fas fa-image"></i></div>
+                            <div class="wallpaper-info">
+                                <a href="https://raw.githubusercontent.com/kuldeepyaduvanshi24/shree-ram-mandir/main/gallery/wallpaper-2.jpg" download class="download-btn">
+                                    <i class="fas fa-download"></i> डाउनलोड
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="wallpaper-card">
+                            <img src="gallery/wallpaper-3.jpg" alt="Wallpaper" onerror="this.style.display='none'; this.parentElement.querySelector('.wallpaper-placeholder').style.display='flex'">
+                            <div class="wallpaper-placeholder"><i class="fas fa-image"></i></div>
+                            <div class="wallpaper-info">
+                                <a href="https://raw.githubusercontent.com/kuldeepyaduvanshi24/shree-ram-mandir/main/gallery/wallpaper-3.jpg" download class="download-btn">
+                                    <i class="fas fa-download"></i> डाउनलोड
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="wallpaper-card">
+                            <img src="gallery/wallpaper-4.jpg" alt="Wallpaper" onerror="this.style.display='none'; this.parentElement.querySelector('.wallpaper-placeholder').style.display='flex'">
+                            <div class="wallpaper-placeholder"><i class="fas fa-image"></i></div>
+                            <div class="wallpaper-info">
+                                <a href="https://raw.githubusercontent.com/kuldeepyaduvanshi24/shree-ram-mandir/main/gallery/wallpaper-4.jpg" download class="download-btn">
+                                    <i class="fas fa-download"></i> डाउनलोड
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="wallpaper-note">
+                        <i class="fas fa-info-circle"></i>
+                        डाउनलोड बटन पर क्लिक करके वॉलपेपर डाउनलोड करें।
+                    </p>
+                </div>
+                
+                
+                
+                
+                
+                <div class="aarti-back" data-aos="fade-up">
+                    <a href="index.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> मुख्य पृष्ठ पर वापस जाएं
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-about">
+                        <div class="footer-logo">
+                            <h3>श्री राम जानकी मंदिर</h3>
+                        </div>
+                        <p class="footer-description">खेड़ी, खण्डवा में स्थित यह पावन मंदिर भक्तों के लिए आध्यात्मिक शांति और भक्ति का केंद्र है।</p>
+                        <div class="footer-social">
+                            <a href="https://www.instagram.com/shreeramjanakimandirkhedi?igsh=d3RnYnZqNzcwbDA4" target="_blank" class="footer-social-link" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://m.facebook.com/113578057234668/" target="_blank" class="footer-social-link" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://maps.app.goo.gl/gtmAkqRN3Cxbq8kE8" target="_blank" class="footer-social-link" aria-label="Google Maps">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer-links">
+                        <h4>त्वरित लिंक</h4>
+                        <ul>
+                            <li><a href="index.html"><i class="fas fa-chevron-right"></i> मुख्य पृष्ठ</a></li>
+                            <li><a href="pratahaarti.html"><i class="fas fa-chevron-right"></i> प्रातः आरती</a></li>
+                            <li><a href="sandhya.html"><i class="fas fa-chevron-right"></i> संध्या आरती</a></li>
+                            <li><a href="aartisangrah.html"><i class="fas fa-chevron-right"></i> आरती संग्रह</a></li>
+                            <li><a href="parv.html"><i class="fas fa-chevron-right"></i> पर्व एवं त्योहार</a></li>
+                            <li><a href="bhajan.html"><i class="fas fa-chevron-right"></i> भजन संग्रह</a></li>
+                            <li><a href="gallery.html"><i class="fas fa-chevron-right"></i> गैलरी</a></li>
+                            <li><a href="gyaan.html"><i class="fas fa-chevron-right"></i> धार्मिक ज्ञान</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-timings">
+                        <h4>दर्शन समय</h4>
+                        <ul>
+                            <li>
+                                <div class="timing-item"><span class="timing-label">प्रातः आरती</span><span class="timing-value">सुबह 5:00 बजे</span></div>
+                            </li>
+                            <li>
+                                <div class="timing-item"><span class="timing-label">संध्या आरती</span><span class="timing-value">शाम 7:30 - 8:00</span></div>
+                            </li>
+                            <li>
+                                <div class="timing-item"><span class="timing-label">सुन्दरकाण्ड</span><span class="timing-value">मंगलवार शाम 6:00</span></div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer-contact">
+                        <h4>संपर्क</h4>
+                        <ul>
+                            <li>
+                                <a href="https://maps.app.goo.gl/gtmAkqRN3Cxbq8kE8" target="_blank" style="color: var(--text-tertiary); text-decoration: none; display: flex; align-items: flex-start; gap: 8px;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>खेड़ी, खण्डवा, म.प्र.</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.instagram.com/shreeramjanakimandirkhedi?igsh=d3RnYnZqNzcwbDA4" target="_blank" style="color: var(--text-tertiary); text-decoration: none; display: flex; align-items: flex-start; gap: 8px;">
+                                    <i class="fab fa-instagram"></i>
+                                    <span>Instagram</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://m.facebook.com/113578057234668/" target="_blank" style="color: var(--text-tertiary); text-decoration: none; display: flex; align-items: flex-start; gap: 8px;">
+                                    <i class="fab fa-facebook-f"></i>
+                                    <span>Facebook</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <p class="footer-jairam">🙏‼️ जय श्री सीताराम ‼️🙏</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-watermark">
+            <div class="container">
+                <p><span>श्री राम जानकी मंदिर, खेड़ी</span> | &copy; 2026 सर्वाधिकार सुरक्षित</p>
+                <p class="digital-seva">&lt;/&gt; Digital Seva by <a href="https://www.instagram.com/kuldeepyaduvanshi.in" target="_blank">Kuldeep</a></p>
+            </div>
+        </div>
+    </footer>
+    
+    
+    <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+    
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
