@@ -1,23 +1,9 @@
 // ============================================
-// Preloader
+// Initialize on Page Load
 // ============================================
 window.addEventListener('load', () => {
-    const preloader = document.getElementById('preloader');
-    if (preloader) {
-        setTimeout(() => {
-            preloader.classList.add('hidden');
-        }, 1000);
-    }
-    
-    // Create particles after load
     createParticles();
-    
-    // Play shankh sound after preloader hides
-    setTimeout(() => {
-        playShankhSound();
-    }, 1500);
-    
-    // Initialize AOS
+    playShankhSound();
     if (typeof AOS !== 'undefined') {
         AOS.init({
             duration: 600,
@@ -28,7 +14,6 @@ window.addEventListener('load', () => {
         });
     }
 });
-
 // ============================================
 // Dark Mode Toggle
 // ============================================
