@@ -35,106 +35,199 @@
         @media (max-width: 400px) { .quick-actions { grid-template-columns: 1fr 1fr; gap: 0.6rem; } .action-card { padding: 1rem 0.8rem; } }
     </style>
 
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyA08uRLLJFOMDhsVZL7TDm7K2wEhBtuJjo",
+        authDomain: "shree-ram-janki-mandir.firebaseapp.com",
+        projectId: "shree-ram-janki-mandir",
+        storageBucket: "shree-ram-janki-mandir.firebasestorage.app",
+        messagingSenderId: "956830262144",
+        appId: "1:956830262144:web:9d3565cc849a7fd88c9765"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    
+    // ============================================
+    // PHONE OTP LOGIN
+    // ============================================
+    let currentVerificationId = '';
+    let recaptchaVerifier = null;
+
+    window.showPhoneLogin = function() {
+        document.getElementById('phoneLogin').style.display = 'block';
+        document.getElementById('googleLoginSection').style.display = 'none';
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyA08uRLLJFOMDhsVZL7TDm7K2wEhBtuJjo",
-            authDomain: "shree-ram-janki-mandir.firebaseapp.com",
-            projectId: "shree-ram-janki-mandir",
-            storageBucket: "shree-ram-janki-mandir.firebasestorage.app",
-            messagingSenderId: "956830262144",
-            appId: "1:956830262144:web:9d3565cc849a7fd88c9765"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        
-        // Google Login
-        window.googleLogin = function() {
-            document.getElementById('loginBtn').disabled = true;
-            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रतीक्षा करें...';
-            signInWithPopup(auth, provider).catch(() => signInWithRedirect(auth, provider));
-        };
-        
-        // Logout
-        window.logoutUser = function() {
-            signOut(auth).then(() => {
-                document.getElementById('status').textContent = '👋 लॉगआउट!';
-                document.getElementById('status').style.color = 'var(--accent-primary)';
+        // Recaptcha setup
+        if (!recaptchaVerifier) {
+            recaptchaVerifier = new RecaptchaVerifier(auth, 'sendOtpBtn', {
+                size: 'invisible',
+                callback: () => {}
             });
-        };
+        }
+    };
+    
+    window.backToGoogle = function() {
+        document.getElementById('phoneLogin').style.display = 'none';
+        document.getElementById('googleLoginSection').style.display = 'block';
+    };
+
+    window.sendOTP = async function() {
+        const phone = '+91' + document.getElementById('phoneNumber').value;
+        const status = document.getElementById('otpStatus');
         
-        // Reminder Toggle
-        window.toggleReminder = function() {
-            const toggle = document.getElementById('reminderToggle');
-            const status = document.getElementById('reminderStatus');
-            toggle.classList.toggle('active');
-            if (toggle.classList.contains('active')) {
-                status.textContent = '🔔 रिमाइंडर चालू है';
-                localStorage.setItem('reminder', 'on');
-                requestNotificationPermission();
-                scheduleAllReminders();
-            } else {
-                status.textContent = '🔕 रिमाइंडर बंद है';
-                localStorage.setItem('reminder', 'off');
+        if (phone.length !== 13) {
+            status.style.display = 'block';
+            status.style.color = '#EF4444';
+            status.textContent = '❌ कृपया सही 10 अंकों का नंबर डालें';
+            return;
+        }
+        
+        status.style.display = 'block';
+        status.style.color = '#F59E0B';
+        status.textContent = '⏳ OTP भेजा जा रहा है...';
+        document.getElementById('sendOtpBtn').disabled = true;
+        
+        try {
+            const confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+            currentVerificationId = confirmationResult.verificationId;
+            document.getElementById('otpSection').style.display = 'block';
+            document.getElementById('sendOtpBtn').style.display = 'none';
+            status.style.color = '#22C55E';
+            status.textContent = '✅ OTP भेज दिया गया! SMS चेक करें';
+        } catch (error) {
+            status.style.color = '#EF4444';
+            status.textContent = '❌ Error: ' + (error.message || 'कुछ गलत हुआ');
+            document.getElementById('sendOtpBtn').disabled = false;
+            
+            // Recaptcha reset
+            if (recaptchaVerifier) {
+                recaptchaVerifier.render().then(widgetId => {
+                    grecaptcha.reset(widgetId);
+                });
             }
-        };
+        }
+    };
+
+    window.verifyOTP = async function() {
+        const otp = document.getElementById('otpCode').value;
+        const status = document.getElementById('otpStatus');
         
-        // Browser Notifications
-        function requestNotificationPermission() {
-            if (!('Notification' in window)) return;
-            if (Notification.permission === 'default') Notification.requestPermission();
+        if (otp.length !== 6) {
+            status.style.color = '#EF4444';
+            status.textContent = '❌ कृपया 6 अंकों का OTP डालें';
+            return;
         }
         
-        function sendReminder(title, body, time) {
-            if (localStorage.getItem('reminder') !== 'on') return;
-            if (!('Notification' in window)) return;
-            if (Notification.permission !== 'granted') return;
-            const now = new Date(), target = new Date();
-            const [h, m] = time.split(':');
-            target.setHours(+h, +m, 0, 0);
-            if (now > target) return;
-            setTimeout(() => new Notification(title, { body, icon: 'gallery/applogo.png', vibrate: [200,100,200] }), target - now);
-        }
+        status.style.color = '#F59E0B';
+        status.textContent = '⏳ सत्यापन हो रहा है...';
         
-        function scheduleAllReminders() {
-            sendReminder('🕉️ प्रातः आरती', 'सुबह 5:00 बजे - आरती का समय! 🙏', '05:00');
-            sendReminder('🪔 संध्या आरती', 'शाम 7:30 बजे - आरती का समय! 🌅', '19:30');
-            if (new Date().getDay() === 2) sendReminder('📿 सुन्दरकाण्ड', 'शाम 6:00 बजे - सुन्दरकाण्ड! 🚩', '18:00');
+        try {
+            const credential = PhoneAuthProvider.credential(currentVerificationId, otp);
+            await signInWithCredential(auth, credential);
+            status.style.color = '#22C55E';
+            status.textContent = '🎉 लॉगिन सफल!';
+        } catch (error) {
+            status.style.color = '#EF4444';
+            status.textContent = '❌ गलत OTP! पुनः प्रयास करें';
         }
-        
-        function updateVisitCount() {
-            let c = parseInt(localStorage.getItem('visitCount')||'0') + 1;
-            localStorage.setItem('visitCount', c);
-            const el = document.getElementById('visitCount');
-            if (el) el.textContent = c;
-        }
-        
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                document.getElementById('userSection').style.display = 'block';
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('userName').textContent = user.displayName;
-                document.getElementById('userPhoto').src = user.photoURL || 'https://www.gstatic.com/mobilesdk/200204_mobilesdk/root_sso_landing_page.png';
-                document.getElementById('welcomeMsg').textContent = `🙏 जय श्री राम, ${user.displayName.split(' ')[0]} जी!`;
-                if (localStorage.getItem('reminder')==='on') {
-                    document.getElementById('reminderToggle').classList.add('active');
-                    document.getElementById('reminderStatus').textContent = '🔔 रिमाइंडर चालू है';
-                }
-                updateVisitCount();
-                requestNotificationPermission();
-                scheduleAllReminders();
-            } else {
-                document.getElementById('userSection').style.display = 'none';
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('loginBtn').disabled = false;
-                document.getElementById('loginBtn').innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius:50%;"> Google से लॉगिन करें';
-            }
+    };
+    
+    // ============================================
+    // GOOGLE LOGIN
+    // ============================================
+    window.googleLogin = function() {
+        document.getElementById('loginBtn').disabled = true;
+        document.getElementById('loginBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रतीक्षा करें...';
+        signInWithPopup(auth, provider).catch(() => signInWithRedirect(auth, provider));
+    };
+    
+    // Logout
+    window.logoutUser = function() {
+        signOut(auth).then(() => {
+            document.getElementById('status').textContent = '👋 लॉगआउट!';
+            document.getElementById('status').style.color = 'var(--accent-primary)';
         });
+    };
+    
+    // Reminder Toggle
+    window.toggleReminder = function() {
+        const toggle = document.getElementById('reminderToggle');
+        const status = document.getElementById('reminderStatus');
+        toggle.classList.toggle('active');
+        if (toggle.classList.contains('active')) {
+            status.textContent = '🔔 रिमाइंडर चालू है';
+            localStorage.setItem('reminder', 'on');
+            requestNotificationPermission();
+            scheduleAllReminders();
+        } else {
+            status.textContent = '🔕 रिमाइंडर बंद है';
+            localStorage.setItem('reminder', 'off');
+        }
+    };
+    
+    // Browser Notifications
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'default') Notification.requestPermission();
+    }
+    
+    function sendReminder(title, body, time) {
+        if (localStorage.getItem('reminder') !== 'on') return;
+        if (!('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+        const now = new Date(), target = new Date();
+        const [h, m] = time.split(':');
+        target.setHours(+h, +m, 0, 0);
+        if (now > target) return;
+        setTimeout(() => new Notification(title, { body, icon: 'gallery/applogo.png', vibrate: [200,100,200] }), target - now);
+    }
+    
+    function scheduleAllReminders() {
+        sendReminder('🕉️ प्रातः आरती', 'सुबह 5:00 बजे - आरती का समय! 🙏', '05:00');
+        sendReminder('🪔 संध्या आरती', 'शाम 7:30 बजे - आरती का समय! 🌅', '19:30');
+        if (new Date().getDay() === 2) sendReminder('📿 सुन्दरकाण्ड', 'शाम 6:00 बजे - सुन्दरकाण्ड! 🚩', '18:00');
+    }
+    
+    function updateVisitCount() {
+        let c = parseInt(localStorage.getItem('visitCount')||'0') + 1;
+        localStorage.setItem('visitCount', c);
+        const el = document.getElementById('visitCount');
+        if (el) el.textContent = c;
+    }
+    
+    // Auth State
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            document.getElementById('userSection').style.display = 'block';
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userName').textContent = user.displayName || 'भक्त';
+            document.getElementById('userPhoto').src = user.photoURL || 'https://www.gstatic.com/mobilesdk/200204_mobilesdk/root_sso_landing_page.png';
+            document.getElementById('welcomeMsg').textContent = user.displayName ? `🙏 जय श्री राम, ${user.displayName.split(' ')[0]} जी!` : '🙏 जय श्री राम!';
+            
+            if (localStorage.getItem('reminder')==='on') {
+                document.getElementById('reminderToggle').classList.add('active');
+                document.getElementById('reminderStatus').textContent = '🔔 रिमाइंडर चालू है';
+            }
+            updateVisitCount();
+            requestNotificationPermission();
+            scheduleAllReminders();
+        } else {
+            document.getElementById('userSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius:50%;"> Google से लॉगिन करें';
+            document.getElementById('googleLoginSection').style.display = 'block';
+            if (document.getElementById('phoneLogin')) document.getElementById('phoneLogin').style.display = 'none';
+        }
+    });
     </script>
+        
 </head>
 <body>
     
@@ -191,30 +284,42 @@
         <img src="gallery/applogo.png" alt="Logo" style="width: 90px; height: 90px; border-radius: 22px; box-shadow: var(--shadow-lg); object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'background:var(--gradient-primary);color:white;width:90px;height:90px;border-radius:22px;display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg);font-size:40px;\'>🕉️</span>'">
     </div>
     <h2 style="color: var(--text-primary); margin-bottom: 0.5rem;">लॉगिन करें</h2>
-    <p style="color: var(--text-tertiary); margin-bottom: 2rem; font-size: 0.9rem;">Google खाते से जुड़ें</p>
-
-
+    <p style="color: var(--text-tertiary); margin-bottom: 1rem; font-size: 0.9rem;">अपने खाते से जुड़ें</p>
     
-    <button onclick="showPhoneLogin()" style="width: 100%; max-width: 320px; padding: 14px; background: #25D366; color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-bottom: 12px;">
-    <i class="fas fa-mobile-alt"></i> फ़ोन नंबर से लॉगिन करें
-    </button>
-
-    <!-- Phone Login -->
-<div id="phoneLogin" style="display: none;">
-    <p style="color: var(--text-tertiary); margin-bottom: 1.5rem; font-size: 0.9rem;">फ़ोन नंबर से लॉगिन करें</p>
-    
-    <div id="phoneInput" style="display: flex; gap: 8px; margin-bottom: 1rem;">
-        <span style="padding: 14px 12px; background: var(--bg-tertiary); border-radius: 12px; font-weight: 600; color: var(--text-primary);">+91</span>
-        <input type="tel" id="phoneNumber" placeholder="9424929009" maxlength="10" style="flex: 1; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1rem; text-align: center; background: var(--bg-primary); color: var(--text-primary); font-family: inherit;">
-    </div>
-    <button onclick="sendOTP()" id="sendOtpBtn" style="width: 100%; padding: 14px; background: var(--gradient-primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;">Send OTP</button>
-    
-    <div id="otpSection" style="display: none; margin-top: 1rem;">
-        <input type="text" id="otpCode" placeholder="1 2 3 4 5 6" maxlength="6" style="width: 100%; padding: 14px; border: 2px solid var(--accent-primary); border-radius: 12px; font-size: 1.2rem; text-align: center; letter-spacing: 8px; background: var(--bg-primary); color: var(--text-primary); font-family: inherit; margin-bottom: 1rem;">
-        <button onclick="verifyOTP()" id="verifyOtpBtn" style="width: 100%; padding: 14px; background: #22C55E; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;">Verify OTP</button>
+    <!-- Google Login Section -->
+    <div id="googleLoginSection">
+        <button onclick="showPhoneLogin()" style="width: 100%; max-width: 320px; padding: 14px; background: #25D366; color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; margin-bottom: 12px;">
+            <i class="fas fa-mobile-alt"></i> फ़ोन नंबर से लॉगिन करें
+        </button>
+        
+        <p style="color: var(--text-tertiary); margin-bottom: 1rem; font-size: 0.85rem;">─────── या ───────</p>
+        
+        <button id="loginBtn" onclick="googleLogin()" style="display: inline-flex; align-items: center; gap: 12px; padding: 15px 35px; background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 50px; cursor: pointer; font-size: 1rem; font-weight: 600; font-family: inherit; color: var(--text-primary); transition: all 0.3s; box-shadow: var(--shadow-sm);">
+            <img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius:50%;"> Google से लॉगिन करें
+        </button>
     </div>
     
-    <p id="otpStatus" style="font-size: 0.8rem; margin-top: 10px; display: none;"></p>
+    <!-- Phone Login Section -->
+    <div id="phoneLogin" style="display: none;">
+        <p style="color: var(--text-tertiary); margin-bottom: 1rem; font-size: 0.9rem;">फ़ोन नंबर से लॉगिन करें</p>
+        
+        <div id="phoneInput" style="display: flex; gap: 8px; margin-bottom: 1rem;">
+            <span style="padding: 14px 12px; background: var(--bg-tertiary); border-radius: 12px; font-weight: 600; color: var(--text-primary);">+91</span>
+            <input type="tel" id="phoneNumber" placeholder="9424929009" maxlength="10" style="flex: 1; padding: 14px; border: 2px solid var(--border-color); border-radius: 12px; font-size: 1rem; text-align: center; background: var(--bg-primary); color: var(--text-primary); font-family: inherit;">
+        </div>
+        <button onclick="sendOTP()" id="sendOtpBtn" style="width: 100%; padding: 14px; background: var(--gradient-primary); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;">Send OTP</button>
+        
+        <div id="otpSection" style="display: none; margin-top: 1rem;">
+            <input type="text" id="otpCode" placeholder="1 2 3 4 5 6" maxlength="6" style="width: 100%; padding: 14px; border: 2px solid var(--accent-primary); border-radius: 12px; font-size: 1.2rem; text-align: center; letter-spacing: 8px; background: var(--bg-primary); color: var(--text-primary); font-family: inherit; margin-bottom: 1rem;">
+            <button onclick="verifyOTP()" style="width: 100%; padding: 14px; background: #22C55E; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;">Verify OTP</button>
+        </div>
+        
+        <button onclick="backToGoogle()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-tertiary); margin-top: 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit;">
+            <i class="fas fa-arrow-left"></i> वापस जाएं
+        </button>
+        
+        <p id="otpStatus" style="font-size: 0.8rem; margin-top: 10px; display: none;"></p>
+    </div>
 </div>
 
 <!-- Divider -->
