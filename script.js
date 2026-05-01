@@ -312,3 +312,69 @@ document.addEventListener('DOMContentLoaded', function() {
         img.addEventListener('dragstart', e => e.preventDefault());
     });
 });
+
+
+
+
+// Phone OTP
+import { RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+let currentVerificationId = '';
+
+window.showPhoneLogin = function() {
+    document.getElementById('phoneLogin').style.display = 'block';
+    document.getElementById('loginBtn').parentElement.style.display = 'none';
+};
+
+// Recaptcha setup
+window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sendOtpBtn', {
+    size: 'invisible',
+    callback: () => {}
+});
+
+window.sendOTP = function() {
+    const phone = '+91' + document.getElementById('phoneNumber').value;
+    const status = document.getElementById('otpStatus');
+    
+    if (phone.length !== 13) {
+        status.style.display = 'block';
+        status.style.color = '#EF4444';
+        status.textContent = '❌ 10 अंकों का नंबर डालें';
+        return;
+    }
+    
+    status.style.display = 'block';
+    status.style.color = '#F59E0B';
+    status.textContent = '⏳ OTP भेजा जा रहा है...';
+    document.getElementById('sendOtpBtn').disabled = true;
+    
+    signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+        .then(result => {
+            currentVerificationId = result.verificationId;
+            document.getElementById('otpSection').style.display = 'block';
+            document.getElementById('sendOtpBtn').style.display = 'none';
+            status.style.color = '#22C55E';
+            status.textContent = '✅ OTP भेज दिया गया!';
+        })
+        .catch(error => {
+            status.style.color = '#EF4444';
+            status.textContent = '❌ ' + error.message;
+            document.getElementById('sendOtpBtn').disabled = false;
+        });
+};
+
+window.verifyOTP = function() {
+    const otp = document.getElementById('otpCode').value;
+    const status = document.getElementById('otpStatus');
+    const credential = PhoneAuthProvider.credential(currentVerificationId, otp);
+    
+    signInWithCredential(auth, credential)
+        .then(() => {
+            status.style.color = '#22C55E';
+            status.textContent = '🎉 लॉगिन सफल!';
+        })
+        .catch(() => {
+            status.style.color = '#EF4444';
+            status.textContent = '❌ गलत OTP';
+        });
+};
