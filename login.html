@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="hi" data-theme="light">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - श्री राम जानकी मंदिर, खेड़ी</title>
+    <title>भक्त डैशबोर्ड - श्री राम जानकी मंदिर, खेड़ी</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +12,148 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="gallery/applogo.png">
+    
+    <style>
+        /* Dashboard Styles */
+        .dashboard-section {
+            padding: 3rem 0;
+            background: var(--bg-primary);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .dash-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .dash-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+        
+        .dash-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .dash-card-icon {
+            font-size: 1.8rem;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .dash-card h4 {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .dash-card p {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        
+        .dash-card .badge {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        
+        .dash-card .btn-sm {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        
+        .btn-reminder {
+            background: var(--accent-primary);
+            color: white;
+        }
+        
+        .btn-reminder:hover {
+            background: #CC5200;
+        }
+        
+        .btn-saved {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+        
+        .btn-saved:hover {
+            background: var(--accent-primary);
+            color: white;
+        }
+        
+        .tithi-box {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tithi-box h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tithi-box p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin: 2px 0;
+        }
+        
+        .favorites-list {
+            text-align: left;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .favorites-list li {
+            padding: 4px 0;
+            border-bottom: 1px dotted var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .favorites-list li i {
+            color: #EF4444;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
     
     <!-- Firebase -->
     <script type="module">
@@ -38,23 +179,17 @@
             
             signInWithPopup(auth, provider)
                 .then(result => {
-                    const user = result.user;
                     document.getElementById('status').textContent = '✅ लॉगिन सफल!';
                     document.getElementById('status').style.color = '#22C55E';
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 800);
                 })
-                .catch(error => {
-                    console.log("Popup failed, trying redirect...");
-                    signInWithRedirect(auth, provider);
-                });
+                .catch(() => signInWithRedirect(auth, provider));
         };
         
         window.logoutUser = function() {
             signOut(auth).then(() => {
                 document.getElementById('status').textContent = '👋 सफलतापूर्वक लॉगआउट!';
                 document.getElementById('status').style.color = 'var(--accent-primary)';
+                localStorage.removeItem('favorites');
             });
         };
         
@@ -65,6 +200,10 @@
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userPhoto').src = user.photoURL || 'https://www.gstatic.com/mobilesdk/200204_mobilesdk/root_sso_landing_page.png';
+                document.getElementById('welcomeMsg').textContent = `🙏 जय श्री राम, ${user.displayName.split(' ')[0]} जी!`;
+                loadFavorites();
+                updateVisitCount();
+                loadDailyTithi();
             } else {
                 document.getElementById('userSection').style.display = 'none';
                 document.getElementById('loginSection').style.display = 'block';
@@ -72,9 +211,76 @@
                 document.getElementById('loginBtn').innerHTML = '<img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius:50%;"> Google से लॉगिन करें';
             }
         });
+        
+        // Favorites
+        window.toggleFavorite = function(item) {
+            let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            if (favs.includes(item)) {
+                favs = favs.filter(f => f !== item);
+            } else {
+                favs.push(item);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favs));
+            loadFavorites();
+            showToast(favs.includes(item) ? '❤️ पसंदीदा में जोड़ा!' : '🗑️ हटा दिया गया');
+        };
+        
+        function loadFavorites() {
+            const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const list = document.getElementById('favoritesList');
+            if (favs.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:var(--text-tertiary);">कोई पसंदीदा नहीं</p>';
+                return;
+            }
+            list.innerHTML = favs.map(f => `
+                <li>📿 ${f} <i class="fas fa-times" onclick="toggleFavorite('${f}')"></i></li>
+            `).join('');
+        }
+        
+        // Visit Counter
+        function updateVisitCount() {
+            let count = parseInt(localStorage.getItem('visitCount') || '0');
+            count++;
+            localStorage.setItem('visitCount', count);
+            document.getElementById('visitCount').textContent = count;
+        }
+        
+        // Daily Tithi (Simulated)
+        function loadDailyTithi() {
+            const tithis = [
+                'प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी',
+                'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी',
+                'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'अमावस्या/पूर्णिमा'
+            ];
+            const today = new Date();
+            const day = today.getDate();
+            const tithi = tithis[day % 15];
+            const months = ['चैत्र','वैशाख','ज्येष्ठ','आषाढ़','श्रावण','भाद्रपद','आश्विन','कार्तिक','मार्गशीर्ष','पौष','माघ','फाल्गुन'];
+            const month = months[today.getMonth()];
+            
+            document.getElementById('tithiText').textContent = `${month} शुक्ल ${tithi}`;
+            document.getElementById('shubhMuhurat').textContent = 'सुबह 7:00 - 9:00 बजे';
+        }
+        
+        // Toast notification
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: var(--gradient-primary); color: white; padding: 10px 25px;
+                border-radius: 25px; font-size: 0.85rem; font-weight: 600;
+                z-index: 9999; animation: slideUp 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+        
+        const style = document.createElement('style');
+        style.textContent = '@keyframes slideUp { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }';
+        document.head.appendChild(style);
     </script>
 </head>
-
 <body>
     
     <header class="header" id="header">
@@ -115,9 +321,9 @@
                 <div class="aarti-hero-content" data-aos="fade-up">
                     <div class="aarti-hero-badge">
                         <i class="fas fa-user-circle"></i>
-                        <span>भक्त लॉगिन</span>
+                        <span>भक्त डैशबोर्ड</span>
                     </div>
-                    <h1>स्वागत है</h1>
+                    <h1 id="welcomeMsg">स्वागत है</h1>
                     <p class="aarti-time-big">श्री राम जानकी मंदिर परिवार</p>
                 </div>
             </div>
@@ -128,49 +334,98 @@
             </div>
         </section>
         
-        <section style="padding: 5rem 0; background: var(--bg-primary);">
-            <div class="container" style="max-width: 450px; text-align: center;">
+        <section style="padding: 3rem 0; background: var(--bg-primary);">
+            <div class="container" style="max-width: 650px; text-align: center;">
                 
-                <p id="status" style="color: var(--accent-primary); font-weight: 600; margin-bottom: 2rem; font-size: 0.9rem;"></p>
+                <p id="status" style="color: var(--accent-primary); font-weight: 600; margin-bottom: 1.5rem;"></p>
                 
                 <!-- Login Section -->
                 <div id="loginSection">
-                    <div style="font-size: 5rem; margin-bottom: 1.5rem;">
-                        <span style="background: var(--gradient-primary); color: white; width: 100px; height: 100px; border-radius: 25px; display: inline-flex; align-items: center; justify-content: center; box-shadow: var(--shadow-lg);">🕉️</span>
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">
+                        <span style="background: var(--gradient-primary); color: white; width: 90px; height: 90px; border-radius: 22px; display: inline-flex; align-items: center; justify-content: center; box-shadow: var(--shadow-lg);">🕉️</span>
                     </div>
+                    <h2 style="color: var(--text-primary); margin-bottom: 0.5rem;">लॉगिन करें</h2>
+                    <p style="color: var(--text-tertiary); margin-bottom: 2rem; font-size: 0.9rem;">भक्त डैशबोर्ड एक्सेस करने के लिए</p>
                     
-                    <h2 style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 700;">लॉगिन करें</h2>
-                    <p style="color: var(--text-tertiary); margin-bottom: 2rem; font-size: 0.9rem;">अपने Google खाते से जुड़ें</p>
-                    
-                    <button id="loginBtn" onclick="googleLogin()" style="display: inline-flex; align-items: center; gap: 12px; padding: 15px 35px; background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 50px; cursor: pointer; font-size: 1rem; font-weight: 600; font-family: inherit; color: var(--text-primary); transition: all 0.3s ease; box-shadow: var(--shadow-sm); width: 100%; max-width: 320px; justify-content: center;">
-                        <img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius: 50%;" alt="G"> Google से लॉगिन करें
+                    <button id="loginBtn" onclick="googleLogin()" style="display: inline-flex; align-items: center; gap: 12px; padding: 15px 35px; background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 50px; cursor: pointer; font-size: 1rem; font-weight: 600; font-family: inherit; color: var(--text-primary); transition: all 0.3s ease; box-shadow: var(--shadow-sm);">
+                        <img src="https://www.google.com/favicon.ico" width="20" height="20" style="border-radius:50%;" alt="G"> Google से लॉगिन करें
                     </button>
-                    
-                    <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-tertiary);">
-                        <i class="fas fa-shield-alt" style="color: #22C55E;"></i> सुरक्षित लॉगिन &nbsp;|&nbsp;
-                        <i class="fas fa-bolt" style="color: #FFD700;"></i> तीव्र
-                    </p>
                 </div>
                 
-                <!-- User Section -->
+                <!-- Dashboard Section -->
                 <div id="userSection" style="display: none;">
-                    <img id="userPhoto" src="" alt="Profile" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--accent-primary); margin-bottom: 1.5rem; box-shadow: var(--shadow-md); object-fit: cover;">
-                    <h2 id="userName" style="color: var(--accent-primary); font-size: 1.3rem; font-weight: 700;"></h2>
-                    <p id="userEmail" style="color: var(--text-tertiary); margin-bottom: 1.5rem; font-size: 0.9rem;"></p>
                     
-                    <div style="background: var(--bg-card); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); margin-bottom: 1.5rem;">
-                        <p style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem; margin-bottom: 0.5rem;">🙏 जय श्री राम!</p>
-                        <p style="color: var(--text-tertiary); font-size: 0.85rem;">श्री राम जानकी मंदिर परिवार में आपका स्वागत है</p>
+                    <!-- Profile -->
+                    <img id="userPhoto" src="" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--accent-primary); margin-bottom: 0.5rem; object-fit: cover;">
+                    <h2 id="userName" style="color: var(--accent-primary); font-size: 1.2rem; font-weight: 700;"></h2>
+                    <p id="userEmail" style="color: var(--text-tertiary); font-size: 0.8rem; margin-bottom: 1.5rem;"></p>
+                    
+                    <!-- Today's Tithi -->
+                    <div class="tithi-box">
+                        <h3>📅 आज की तिथि</h3>
+                        <p id="tithiText" style="font-size: 1.1rem; font-weight: 700;">लोड हो रहा है...</p>
+                        <p>⭐ शुभ मुहूर्त: <span id="shubhMuhurat">सुबह 7-9 बजे</span></p>
                     </div>
                     
-                    <button onclick="logoutUser()" style="padding: 12px 30px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 25px; cursor: pointer; font-family: inherit; color: var(--text-secondary); font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='var(--accent-primary)'; this.style.color='white';" onmouseout="this.style.background='var(--bg-tertiary)'; this.style.color='var(--text-secondary)';">
-                        <i class="fas fa-sign-out-alt"></i> लॉगआउट करें
-                    </button>
-                    <p style="margin-top: 1rem;">
-                        <a href="index.html" style="color: var(--accent-primary); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
-                            <i class="fas fa-home"></i> मुख्य पृष्ठ पर जाएं
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        
+                        <!-- Aarti Reminder -->
+                        <div class="dash-card" onclick="showToast('🔔 प्रातः आरती: सुबह 5:00 बजे')">
+                            <div class="dash-card-icon"><i class="fas fa-sun"></i></div>
+                            <h4>आरती रिमाइंडर</h4>
+                            <p>सुबह 5:00 & शाम 7:30</p>
+                            <span class="badge">🔔 ON</span>
+                        </div>
+                        
+                        <!-- Saved Favorites -->
+                        <div class="dash-card" onclick="showToast('❤️ पसंदीदा सेव करने के लिए किसी आरती पर क्लिक करें')">
+                            <div class="dash-card-icon"><i class="fas fa-heart"></i></div>
+                            <h4>पसंदीदा</h4>
+                            <p>सेव की गई आरतियाँ</p>
+                            <span class="badge" id="favCount">0 सेव</span>
+                        </div>
+                        
+                        <!-- Festival Calendar -->
+                        <a href="parv.html" class="dash-card" style="text-decoration: none; color: inherit;">
+                            <div class="dash-card-icon"><i class="fas fa-calendar-star"></i></div>
+                            <h4>त्योहार कैलेंडर</h4>
+                            <p>सभी पर्व देखें</p>
+                            <span class="badge">📅 12 महीने</span>
                         </a>
-                    </p>
+                        
+                        <!-- Visit Counter -->
+                        <div class="dash-card">
+                            <div class="dash-card-icon"><i class="fas fa-chart-line"></i></div>
+                            <h4>आपकी भक्ति यात्रा</h4>
+                            <p>कुल विजिट</p>
+                            <span class="badge" id="visitCount">0</span>
+                        </div>
+                        
+                        <!-- Daily Mantra -->
+                        <div class="dash-card full-width" onclick="showToast('📿 ॐ रामाय नमः - जप करें!')">
+                            <div class="dash-card-icon"><i class="fas fa-om"></i></div>
+                            <h4>आज का मंत्र</h4>
+                            <p>ॐ रामाय नमः</p>
+                            <span class="badge">📿 जप करें</span>
+                        </div>
+                        
+                        <!-- Favorites List -->
+                        <div class="dash-card full-width" style="text-align: left;">
+                            <div class="dash-card-icon" style="text-align: center;"><i class="fas fa-star"></i></div>
+                            <h4 style="text-align: center;">❤️ पसंदीदा आरतियाँ</h4>
+                            <div id="favoritesList" class="favorites-list" style="margin-top: 0.5rem;">
+                                <p style="text-align:center;color:var(--text-tertiary);">कोई पसंदीदा नहीं</p>
+                            </div>
+                            <p style="font-size: 0.7rem; color: var(--text-tertiary); margin-top: 8px; text-align: center;">❤️ आरती पेज पर जाकर जोड़ें</p>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Logout -->
+                    <button onclick="logoutUser()" style="margin-top: 2rem; padding: 12px 30px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 25px; cursor: pointer; font-family: inherit; color: var(--text-secondary); font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='var(--accent-primary)'; this.style.color='white';" onmouseout="this.style.background='var(--bg-tertiary)'; this.style.color='var(--text-secondary)';">
+                        <i class="fas fa-sign-out-alt"></i> लॉगआउट
+                    </button>
                 </div>
                 
             </div>
@@ -182,9 +437,7 @@
             <div class="container">
                 <div class="footer-grid">
                     <div class="footer-about">
-                        <div class="footer-logo">
-                            <h3>श्री राम जानकी मंदिर</h3>
-                        </div>
+                        <div class="footer-logo"><h3>श्री राम जानकी मंदिर</h3></div>
                         <p class="footer-description">खेड़ी, खण्डवा में स्थित यह पावन मंदिर भक्तों के लिए आध्यात्मिक शांति और भक्ति का केंद्र है।</p>
                         <div class="footer-social">
                             <a href="https://www.instagram.com/shreeramjanakimandirkhedi?igsh=d3RnYnZqNzcwbDA4" target="_blank" class="footer-social-link"><i class="fab fa-instagram"></i></a>
@@ -198,25 +451,15 @@
                             <li><a href="index.html"><i class="fas fa-chevron-right"></i> मुख्य पृष्ठ</a></li>
                             <li><a href="pratahaarti.html"><i class="fas fa-chevron-right"></i> प्रातः आरती</a></li>
                             <li><a href="sandhya.html"><i class="fas fa-chevron-right"></i> संध्या आरती</a></li>
-                            <li><a href="aartisangrah.html"><i class="fas fa-chevron-right"></i> आरती संग्रह</a></li>
-                            <li><a href="parv.html"><i class="fas fa-chevron-right"></i> पर्व एवं त्योहार</a></li>
-                            <li><a href="bhajan.html"><i class="fas fa-chevron-right"></i> भजन संग्रह</a></li>
-                            <li><a href="gallery.html"><i class="fas fa-chevron-right"></i> गैलरी</a></li>
-                            <li><a href="gyaan.html"><i class="fas fa-chevron-right"></i> धार्मिक ज्ञान</a></li>
+                            <li><a href="login.html"><i class="fas fa-chevron-right"></i> भक्त डैशबोर्ड</a></li>
                         </ul>
                     </div>
                     <div class="footer-timings">
                         <h4>दर्शन समय</h4>
                         <ul>
-                            <li>
-                                <div class="timing-item"><span class="timing-label">प्रातः आरती</span><span class="timing-value">सुबह 5:00 बजे</span></div>
-                            </li>
-                            <li>
-                                <div class="timing-item"><span class="timing-label">संध्या आरती</span><span class="timing-value">शाम 7:30 - 8:00</span></div>
-                            </li>
-                            <li>
-                                <div class="timing-item"><span class="timing-label">सुन्दरकाण्ड</span><span class="timing-value">मंगलवार शाम 6:00</span></div>
-                            </li>
+                            <li><div class="timing-item"><span class="timing-label">प्रातः आरती</span><span class="timing-value">सुबह 5:00 बजे</span></div></li>
+                            <li><div class="timing-item"><span class="timing-label">संध्या आरती</span><span class="timing-value">शाम 7:30 - 8:00</span></div></li>
+                            <li><div class="timing-item"><span class="timing-label">सुन्दरकाण्ड</span><span class="timing-value">मंगलवार शाम 6:00</span></div></li>
                         </ul>
                     </div>
                     <div class="footer-contact">
@@ -231,11 +474,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <div class="container">
-                <div class="footer-bottom-content">
-                    <p class="footer-jairam">🙏‼️ जय श्री सीताराम ‼️🙏</p>
-                </div>
-            </div>
+            <div class="container"><div class="footer-bottom-content"><p class="footer-jairam">🙏‼️ जय श्री सीताराम ‼️🙏</p></div></div>
         </div>
         <div class="footer-watermark">
             <div class="container">
@@ -249,5 +488,4 @@
     
     <script src="script.js"></script>
 </body>
-
-</html>
+            </html>
